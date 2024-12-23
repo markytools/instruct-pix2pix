@@ -109,12 +109,12 @@ def main():
         input_image.save(args.output)
         return
 
-    with torch.no_grad(), autocast("cuda"), model.ema_scope():
+    with torch.no_grad(), model.ema_scope():
         cond = {}
         cond["c_crossattn"] = [model.get_learned_conditioning([args.edit])]
         input_image = 2 * torch.tensor(np.array(input_image)).float() / 255 - 1
         input_image = input_image.to(torch.half)
-        input_image = rearrange(input_image, "h w c -> 1 c h w").to(model.device)
+        input_image = rearrange(input_image, "h w c -> 1 c h w")
         cond["c_concat"] = [model.encode_first_stage(input_image).mode()]
 
         uncond = {}
