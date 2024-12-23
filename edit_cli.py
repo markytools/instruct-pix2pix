@@ -115,7 +115,7 @@ def main():
         input_image = 2 * torch.tensor(np.array(input_image)).float() / 255 - 1
         input_image = rearrange(input_image, "h w c -> 1 c h w")
         input_image = input_image.to(model.device)
-        input_image = input_image.to(torch.float)
+        input_image = input_image.half()
         cond["c_concat"] = [model.encode_first_stage(input_image).mode()]
 
         uncond = {}
