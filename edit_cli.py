@@ -109,14 +109,12 @@ def main():
         input_image.save(args.output)
         return
 
-    with torch.no_grad(), model.ema_scope():
+    with torch.no_grad(), autocast(model.device), model.ema_scope():
         cond = {}
         cond["c_crossattn"] = [model.get_learned_conditioning([args.edit])]
         input_image = 2 * torch.tensor(np.array(input_image)).float() / 255 - 1
         input_image = rearrange(input_image, "h w c -> 1 c h w")
         input_image = input_image.to(model.device)
-        input_image = input_image.half()
-        model = model.half()
         cond["c_concat"] = [model.encode_first_stage(input_image).mode()]
 
         uncond = {}
