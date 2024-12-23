@@ -19,12 +19,19 @@ sys.path.append("./stable_diffusion")
 
 from stable_diffusion.ldm.util import instantiate_from_config
 
-class MyDataParallel(nn.DataParallel):
+class _CustomDataParallel(nn.Module):
+    def __init__(self, model):
+        super(_CustomDataParallel, self).__init__()
+        self.model = nn.DataParallel(model).cuda()
+
+    def forward(self, *input):
+        return self.model(*input)
+
     def __getattr__(self, name):
         try:
             return super().__getattr__(name)
         except AttributeError:
-            return getattr(self.module, name)
+            return getattr(self.model.module, name)
 
 class CFGDenoiser(nn.Module):
     def __init__(self, model):
@@ -83,8 +90,8 @@ def main():
 
     config = OmegaConf.load(args.config)
     model = load_model_from_config(config, args.ckpt, args.vae_ckpt)
+    model= _CustomDataParallel(model)
     model.eval().cuda()
-    model= MyDataParallel(model)
     model_wrap = K.external.CompVisDenoiser(model)
     model_wrap_cfg = CFGDenoiser(model_wrap)
     null_token = model.get_learned_conditioning([""])
