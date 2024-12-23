@@ -22,7 +22,7 @@ from stable_diffusion.ldm.util import instantiate_from_config
 class _CustomDataParallel(nn.Module):
     def __init__(self, model):
         super(_CustomDataParallel, self).__init__()
-        self.model = nn.DataParallel(model).cuda()
+        self.model = nn.DataParallel(model, [0,1]).cuda()
 
     def forward(self, *input):
         return self.model(*input)
