@@ -116,6 +116,7 @@ def main():
         input_image = rearrange(input_image, "h w c -> 1 c h w")
         input_image = input_image.to(model.device)
         input_image = input_image.half()
+        model = model.half()
         cond["c_concat"] = [model.encode_first_stage(input_image).mode()]
 
         uncond = {}
